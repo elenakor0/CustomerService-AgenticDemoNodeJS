@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { OpenAIService } from './services/openaiService';
 import { ConsoleInterface } from './utils/consoleInterface';
+import { clearSession } from './utils/sessionManager';
 import { ChatMessage } from './types';
 
 // Load environment variables at the very beginning
@@ -10,50 +11,54 @@ dotenv.config();
 
 const SYSTEM_PROMPT = `You are a tool-calling assistant for customer service. You ONLY use tools to process requests.
 
-TOOLS:
-- authenticateCustomer(customerName, pin): Verify customer identity FIRST
-- handleRefundRequest(customerName, pin, orderNumber): Process refunds AFTER authentication
+AVAILABLE TOOLS:
+- handleOrderCancellation(orderNumber, customerName?, pin?, confirmation?): Cancel orders
+- handleOrderReturn(orderNumber, customerName?, pin?, confirmation?): Process returns  
+- handleShipmentStatus(orderNumber, customerName?, pin?): Check order status
 - handleProductInformation(productName, queryType, question): Get product info
-- handleGeneralQuestion(question): Answer questions
+- handleGeneralQuestion(question): Answer general questions
 
-REFUND WORKFLOW - CRITICAL:
-1. When customer provides name + PIN → call authenticateCustomer tool immediately
-2. If authentication fails → stop, don't ask for order number
-3. If authentication succeeds → ask for order number
-4. When you have order number → call handleRefundRequest tool
+CRITICAL WORKFLOW:
+1. For order operations (cancel, return, status), ALWAYS try calling the tool with just the orderNumber first
+2. The tool will automatically use session credentials if customer is authenticated
+3. If tool asks for authentication, then ask customer for credentials
+4. Extract order numbers from user messages - if they say "cancel order ORD005", use "ORD005"
+5. CONFIRMATION HANDLING: If tool asks "Please respond with yes/no" and user says "yes", call the SAME tool again with confirmation=true
 
 EXAMPLES:
-User: "refund"
-Assistant: "Please provide your full name and 4-digit PIN."
+User: "cancel order ORD005"
+Assistant: [calls handleOrderCancellation(orderNumber="ORD005")]
 
-User: "bill 9999" 
-Assistant: [calls authenticateCustomer tool → "Authentication failed"]
+User: "return ORD002"
+Assistant: [calls handleOrderReturn(orderNumber="ORD002")] → "Just confirming..."
 
-User: "John Doe 1234"
-Assistant: [calls authenticateCustomer tool → "Authentication successful, provide order number"]
+User: "yes"
+Assistant: [calls handleOrderReturn(orderNumber="ORD002", confirmation=true)]`;
 
-NEVER ask for order number until authentication succeeds.`;
-
-async function main() {
-  // Clear chat history on startup
+const main = async (): Promise<void> => {
+  // Clear chat history and customer session on startup
   const chatHistoryFile = path.join(__dirname, '../data/chat_history.json');
   try {
     if (fs.existsSync(chatHistoryFile)) {
       fs.unlinkSync(chatHistoryFile);
       console.log('Chat history cleared.');
     }
+    clearSession();
+    console.log('Customer session cleared.');
   } catch (error) {
-    console.error('Error clearing chat history:', error);
+    console.error('Error clearing files:', error);
   }
 
   console.log('🤖 Customer Service Assistant');
   console.log('===========================');
   console.log('I can help you with:');
-  console.log('- Refund requests (requires authentication)');
+  console.log('- Order cancellations (processing orders only)');
+  console.log('- Order returns (delivered orders only)');
+  console.log('- Shipment status inquiries');
   console.log('- Product information');
   console.log('- General company questions');
   console.log('');
-  console.log('Type "history" to view chat history, "clear" to clear history, or "quit" to exit.');
+  console.log('Type "quit" to exit.');
   console.log('');
 
   const openaiService = new OpenAIService();
@@ -75,16 +80,6 @@ async function main() {
         break;
       }
 
-      if (userInput.toLowerCase() === 'history') {
-        consoleInterface.displayHistory();
-        continue;
-      }
-
-      if (userInput.toLowerCase() === 'clear') {
-        consoleInterface.clearHistory();
-        consoleInterface.displayMessage('Chat history cleared.');
-        continue;
-      }
 
       // Add user message to history
       const userMessage: ChatMessage = {
@@ -116,18 +111,27 @@ async function main() {
         }
       }
 
-      // If no tool was called, check if this is a refund request and override with strict response
+      // If no tool was called, check for specific scenarios
       if (!result.toolCalls || result.toolCalls.length === 0) {
         const lastUserMessage = conversationHistory[conversationHistory.length - 1];
         if (lastUserMessage && lastUserMessage.role === 'user') {
-          const userText = lastUserMessage.content.toLowerCase();
-          if (userText.includes('refund') || userText.includes('return')) {
-            // For refund requests without complete info, always ask for all details
-            if (!assistantResponse || assistantResponse.includes('thank') || assistantResponse.includes('elena') || assistantResponse.includes('please provide your order')) {
-              assistantResponse = "Please provide your full name, 4-digit PIN, and order number.";
+          const userText = lastUserMessage.content.toLowerCase().trim();
+          
+          // Check if user is responding to a confirmation request
+          if ((userText === 'yes' || userText === 'y') && conversationHistory.length >= 2) {
+            const previousAssistantMessage = conversationHistory[conversationHistory.length - 2];
+            if (previousAssistantMessage && previousAssistantMessage.content.includes('Please respond with yes/no')) {
+              assistantResponse = "I understand you want to confirm. Let me process that for you.";
             }
-          } else if (!assistantResponse) {
-            assistantResponse = "I'm sorry, I can only help with refund requests, product information, or general company questions. Could you please rephrase your request?";
+           } 
+           //else if (userText.includes('return')) {
+        //     // For return requests without complete info, always ask for order number
+        //     if (!assistantResponse || assistantResponse.includes('thank') || assistantResponse.includes('elena') || assistantResponse.includes('please provide your order')) {
+        //       assistantResponse = "Please provide your order number.";
+        //     }
+        //   } 
+            else if (!assistantResponse) {
+            assistantResponse = "I'm sorry, I can only help with order cancellations, returns, shipment status, product information, or general company questions. Could you please rephrase your request?";
           }
         }
       }
@@ -152,7 +156,7 @@ async function main() {
 }
 
 // Check for required environment variables
-function checkEnvironmentVariables(): void {
+const checkEnvironmentVariables = (): void => {
   const requiredVars = ['OPENAI_API_KEY'];
   const missingVars: string[] = [];
 

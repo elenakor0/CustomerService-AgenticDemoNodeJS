@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { ChatMessage } from '../types';
 
-const CHAT_HISTORY_FILE = path.join(__dirname, '../../data/chat_history.json');
+const CHAT_HISTORY_FILE = path.join(__dirname, '../../../data/chat_history.json');
 
 export class ConsoleInterface {
   private rl: readline.Interface;

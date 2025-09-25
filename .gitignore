@@ -3,6 +3,9 @@ node_modules/
 
 # Build output
 dist/
+*.js.map
+src/**/*.js
+src/**/*.js.map
 
 # Environment variables
 .env
@@ -20,3 +23,7 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# Ignore project docs folder
+/project-docs/
+

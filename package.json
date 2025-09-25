@@ -2,12 +2,12 @@
   "name": "customer-service-app",
   "version": "1.0.0",
   "description": "A demo customer service app with OpenAI tool calling",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "scripts": {
     "build": "tsc",
-    "start": "npm run build && node dist/index.js",
+    "start": "npm run build && node dist/src/index.js",
     "dev": "ts-node src/index.ts",
-    "debug": "npm run build && node --inspect-brk dist/index.js"
+    "debug": "npm run build && node --inspect-brk dist/src/index.js"
   },
   "dependencies": {
     "openai": "^4.28.0",

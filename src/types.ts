@@ -9,6 +9,9 @@ export interface Order {
   orderNumber: string;
   productName: string;
   productQuantity: number;
+  status: 'processing' | 'in_transit' | 'delivered';
+  estimatedShippingDate: string;
+  shippedDate?: string;
 }
 
 export interface ToolCall {
@@ -26,11 +29,6 @@ export interface ChatMessage {
   timestamp: Date;
 }
 
-export interface RefundParams {
-  customerName: string;
-  pin: string;
-  orderNumber: string;
-}
 
 export interface ProductInfoParams {
   productName: string;
@@ -40,4 +38,30 @@ export interface ProductInfoParams {
 
 export interface GeneralQuestionParams {
   question: string;
+}
+
+export interface OrderCancellationParams {
+  customerName: string;
+  pin: string;
+  orderNumber: string;
+  confirmation: boolean;
+}
+
+export interface OrderReturnParams {
+  customerName: string;
+  pin: string;
+  orderNumber: string;
+  confirmation: boolean;
+}
+
+export interface ShipmentStatusParams {
+  customerName: string;
+  pin: string;
+  orderNumber: string;
+}
+
+export interface CustomerSession {
+  customerName: string;
+  pin: string;
+  authenticatedAt: Date;
 }

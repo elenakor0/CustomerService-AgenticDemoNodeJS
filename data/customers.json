@@ -7,13 +7,35 @@
         "date": "2025-09-20",
         "orderNumber": "ORD001",
         "productName": "Wireless Headphones",
-        "productQuantity": 1
+        "productQuantity": 1,
+        "status": "processing",
+        "estimatedShippingDate": "2025-09-25"
       },
       {
         "date": "2025-08-15",
         "orderNumber": "ORD002",
         "productName": "Bluetooth Speaker",
-        "productQuantity": 2
+        "productQuantity": 2,
+        "status": "delivered",
+        "estimatedShippingDate": "2025-08-20",
+        "shippedDate": "2025-08-19"
+      },
+      {
+        "date": "2025-09-15",
+        "orderNumber": "ORD005",
+        "productName": "USB Cable",
+        "productQuantity": 3,
+        "status": "in_transit",
+        "estimatedShippingDate": "2025-09-20",
+        "shippedDate": "2025-09-20"
+      },
+      {
+        "date": "2025-09-22",
+        "orderNumber": "ORD006",
+        "productName": "Phone Case",
+        "productQuantity": 1,
+        "status": "processing",
+        "estimatedShippingDate": "2025-09-27"
       }
     ]
   },
@@ -25,13 +47,36 @@
         "date": "2025-09-10",
         "orderNumber": "ORD003",
         "productName": "Smart Watch",
-        "productQuantity": 1
+        "productQuantity": 1,
+        "status": "in_transit",
+        "estimatedShippingDate": "2025-09-15",
+        "shippedDate": "2025-09-14"
       },
       {
         "date": "2025-07-01",
         "orderNumber": "ORD004",
         "productName": "Laptop Stand",
-        "productQuantity": 1
+        "productQuantity": 1,
+        "status": "delivered",
+        "estimatedShippingDate": "2025-07-06",
+        "shippedDate": "2025-07-05"
+      },
+      {
+        "date": "2025-09-18",
+        "orderNumber": "ORD007",
+        "productName": "Wireless Mouse",
+        "productQuantity": 1,
+        "status": "processing",
+        "estimatedShippingDate": "2025-09-23"
+      },
+      {
+        "date": "2025-08-25",
+        "orderNumber": "ORD008",
+        "productName": "Keyboard",
+        "productQuantity": 1,
+        "status": "delivered",
+        "estimatedShippingDate": "2025-08-30",
+        "shippedDate": "2025-08-29"
       }
     ]
   }

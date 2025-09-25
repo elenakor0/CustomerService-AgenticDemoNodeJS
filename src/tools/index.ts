@@ -1,4 +1,4 @@
-import { authenticateCustomer, handleRefundRequest } from './refund';
+import { handleOrderCancellation, handleOrderReturn, handleShipmentStatus } from './orderOperations';
 import { handleProductInformation } from './productInfo';
 import { handleGeneralQuestion } from './generalQuestions';
 
@@ -6,46 +6,83 @@ export const availableTools = [
   {
     type: "function" as const,
     function: {
-      name: "authenticateCustomer",
-      description: "Authenticate a customer using their name and PIN. Call this FIRST when customer provides name and PIN, before asking for order number.",
+      name: "handleOrderCancellation",
+      description: "Cancel an order if it's in processing status. Uses session authentication if customer is already authenticated.",
       parameters: {
         type: "object",
         properties: {
           customerName: {
             type: "string",
-            description: "The customer's full name"
+            description: "The customer's full name (optional if already authenticated in session)"
           },
           pin: {
             type: "string",
-            description: "The customer's 4-digit PIN"
+            description: "The customer's 4-digit PIN (optional if already authenticated in session)"
+          },
+          orderNumber: {
+            type: "string",
+            description: "The order number to cancel"
+          },
+          confirmation: {
+            type: "boolean",
+            description: "Set to true to confirm the cancellation, false or omit to ask for confirmation"
           }
         },
-        required: ["customerName", "pin"]
+        required: ["orderNumber"]
       }
     }
   },
   {
     type: "function" as const,
     function: {
-      name: "handleRefundRequest",
-      description: "Process a refund request for an authenticated customer. Only call this after successful authentication.",
+      name: "handleOrderReturn",
+      description: "Process a return for a delivered order. Uses session authentication if customer is already authenticated.",
       parameters: {
         type: "object",
         properties: {
           customerName: {
             type: "string",
-            description: "The customer's full name"
+            description: "The customer's full name (optional if already authenticated in session)"
           },
           pin: {
             type: "string",
-            description: "The customer's 4-digit PIN"
+            description: "The customer's 4-digit PIN (optional if already authenticated in session)"
           },
           orderNumber: {
             type: "string",
-            description: "The order number for the refund request"
+            description: "The order number to return"
+          },
+          confirmation: {
+            type: "boolean",
+            description: "Set to true to confirm the return, false or omit to ask for confirmation"
           }
         },
-        required: ["customerName", "pin", "orderNumber"]
+        required: ["orderNumber"]
+      }
+    }
+  },
+  {
+    type: "function" as const,
+    function: {
+      name: "handleShipmentStatus",
+      description: "Check the shipment status of an order. Uses session authentication if customer is already authenticated.",
+      parameters: {
+        type: "object",
+        properties: {
+          customerName: {
+            type: "string",
+            description: "The customer's full name (optional if already authenticated in session)"
+          },
+          pin: {
+            type: "string",
+            description: "The customer's 4-digit PIN (optional if already authenticated in session)"
+          },
+          orderNumber: {
+            type: "string",
+            description: "The order number to check status for"
+          }
+        },
+        required: ["orderNumber"]
       }
     }
   },
@@ -79,7 +116,7 @@ export const availableTools = [
     type: "function" as const,
     function: {
       name: "handleGeneralQuestion",
-      description: "Answer general questions about company policies, procedures, or information not related to specific products or refunds.",
+      description: "Answer general questions about company policies, procedures, or general information.",
       parameters: {
         type: "object",
         properties: {
@@ -95,8 +132,9 @@ export const availableTools = [
 ];
 
 export const toolFunctions = {
-  authenticateCustomer,
-  handleRefundRequest,
+  handleOrderCancellation,
+  handleOrderReturn,
+  handleShipmentStatus,
   handleProductInformation,
   handleGeneralQuestion
 };

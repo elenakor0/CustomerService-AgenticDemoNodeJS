@@ -35,6 +35,7 @@ any env variable is missing.
 - **Type Safety:** Avoid `any` type and use specific types or interfaces.
 - **Interface Usage:** Define interfaces for data structures and object shapes.
 - **Strict Mode:** Ensure `strict` mode is enabled in `tsconfig.json`.
+- **Use Arrow functions:** Use arrow function syntax , e.g. const getUser = async ()...
 
 ## Deprecated Patterns
 
