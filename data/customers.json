@@ -1,0 +1,38 @@
+[
+  {
+    "name": "John Doe",
+    "pin": "1234",
+    "orders": [
+      {
+        "date": "2025-09-20",
+        "orderNumber": "ORD001",
+        "productName": "Wireless Headphones",
+        "productQuantity": 1
+      },
+      {
+        "date": "2025-08-15",
+        "orderNumber": "ORD002",
+        "productName": "Bluetooth Speaker",
+        "productQuantity": 2
+      }
+    ]
+  },
+  {
+    "name": "Jane Smith",
+    "pin": "5678",
+    "orders": [
+      {
+        "date": "2025-09-10",
+        "orderNumber": "ORD003",
+        "productName": "Smart Watch",
+        "productQuantity": 1
+      },
+      {
+        "date": "2025-07-01",
+        "orderNumber": "ORD004",
+        "productName": "Laptop Stand",
+        "productQuantity": 1
+      }
+    ]
+  }
+]

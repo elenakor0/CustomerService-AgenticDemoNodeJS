@@ -1,0 +1,42 @@
+---
+description: Node.js project rules with TypeScript and Express.
+globs:
+  - "**/*.ts"
+  - "**/*.js"
+alwaysApply: false
+---
+
+# Node.js Project Guidelines
+
+## General Principles
+
+- **Language:** Use TypeScript for all new code and prefer it over JavaScript where possible.
+- **Modularity:** Design code with a focus on modularity and reusability.
+- **Error Handling:** Implement robust error handling using try-catch blocks and appropriate error responses. In catch blocks throw the error back to the calling function. The top calling functions should handle all the errors.
+- **Naming Conventions:**
+    - Use `camelCase` for variables, functions, and methods.
+    - Use `PascalCase` for classes, interfaces, and types.
+    - Use `kebab-case` for file and directory names.
+- **Documentation:** Add JSDoc comments to public functions, classes, and interfaces.
+- **Missing env variables:** When starting the app, do a check for missing env variables and return an error message to the console if 
+any env variable is missing.
+
+## Express.js Specific Rules
+
+- **Route Definitions:** Define routes in separate files or modules for better organization.
+- **Middleware:** Use middleware for common tasks like authentication, logging, and error handling.
+- **Request/Response Handling:**
+    - Always send appropriate HTTP status codes with responses.
+    - Use `res.json()` for sending JSON responses.
+    - Validate incoming request data (e.g., using Zod or Joi).
+
+## TypeScript Best Practices
+
+- **Type Safety:** Avoid `any` type and use specific types or interfaces.
+- **Interface Usage:** Define interfaces for data structures and object shapes.
+- **Strict Mode:** Ensure `strict` mode is enabled in `tsconfig.json`.
+
+## Deprecated Patterns
+
+- **Avoid callback hell:** Prefer `async/await` for asynchronous operations.
+- **Avoid global variables:** Encapsulate variables within modules or classes.
