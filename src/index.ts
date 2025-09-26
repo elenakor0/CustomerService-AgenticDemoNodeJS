@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 import * as path from 'path';
-import { OpenAIService } from './services/openaiService';
+import { createOpenAIService} from './services/openaiService';
 import { ConsoleInterface } from './utils/consoleInterface';
 import { clearSession } from './utils/sessionManager';
 import { ChatMessage } from './types';
@@ -61,7 +61,7 @@ const main = async (): Promise<void> => {
   console.log('Type "quit" to exit.');
   console.log('');
 
-  const openaiService = new OpenAIService();
+  const { processMessage, executeToolCalls } = createOpenAIService();
   const consoleInterface = new ConsoleInterface();
 
   // Initialize with system message
@@ -95,7 +95,7 @@ const main = async (): Promise<void> => {
       // Process with OpenAI
       consoleInterface.displayMessage('Assistant: Thinking... 🤔');
 
-      const result = await openaiService.processMessage(conversationHistory);
+      const result = await processMessage(conversationHistory);
 
       let assistantResponse = result.response;
 
@@ -103,7 +103,7 @@ const main = async (): Promise<void> => {
       if (result.toolCalls && result.toolCalls.length > 0) {
         consoleInterface.displayMessage('Assistant: Processing your request... ⚙️');
 
-        const toolResults = await openaiService.executeToolCalls(result.toolCalls);
+        const toolResults = await executeToolCalls(result.toolCalls);
 
         // Add tool results to the response
         if (toolResults.length > 0) {
@@ -117,19 +117,14 @@ const main = async (): Promise<void> => {
         if (lastUserMessage && lastUserMessage.role === 'user') {
           const userText = lastUserMessage.content.toLowerCase().trim();
           
-          // Check if user is responding to a confirmation request
+          // Check if stuck on the user confirmation
           if ((userText === 'yes' || userText === 'y') && conversationHistory.length >= 2) {
             const previousAssistantMessage = conversationHistory[conversationHistory.length - 2];
             if (previousAssistantMessage && previousAssistantMessage.content.includes('Please respond with yes/no')) {
               assistantResponse = "I understand you want to confirm. Let me process that for you.";
             }
            } 
-           //else if (userText.includes('return')) {
-        //     // For return requests without complete info, always ask for order number
-        //     if (!assistantResponse || assistantResponse.includes('thank') || assistantResponse.includes('elena') || assistantResponse.includes('please provide your order')) {
-        //       assistantResponse = "Please provide your order number.";
-        //     }
-        //   } 
+       
             else if (!assistantResponse) {
             assistantResponse = "I'm sorry, I can only help with order cancellations, returns, shipment status, product information, or general company questions. Could you please rephrase your request?";
           }
